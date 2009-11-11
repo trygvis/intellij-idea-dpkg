@@ -1,0 +1,7 @@
+Package: intellij-idea
+Section: devel
+Version: VERSION
+Maintainer: Trygve Laugstøl <trygvis@inamo.no>
+Architecture: all
+Depends: sun-java6-jdk
+Description: The Most Intelligent Java IDE
