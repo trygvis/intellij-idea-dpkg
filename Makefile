@@ -13,7 +13,9 @@ check-settings:
 clean:
 	@rm -rf root
 
-.PHONY: check-settings clean
+# The generated files has to be phony because VERSION or FLAVOR might have 
+# changed and there is no way to Make to tell.
+.PHONY: check-settings clean root/usr/bin/idea root/DEBIAN/control
 
 intellij-idea-$(FLAVOR)-$(VERSION).deb: root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION) root/DEBIAN/control root/usr/bin/idea
 	dpkg-deb -b root $@
@@ -41,4 +43,4 @@ root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION): idea-$(FLAVOR)-$(VERSION).tar
 	@(cd $(shell dirname $@); tar zxf $(PWD)/$<)
 
 idea-$(FLAVOR)-$(VERSION).tar.gz:
-	wget -O $< http://download.jetbrains.com/idea/idea$(FLAVOR)-$(VERSION).tar.gz
+	wget -O $@ http://download.jetbrains.com/idea/idea$(FLAVOR)-$(VERSION).tar.gz
