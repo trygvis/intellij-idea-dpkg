@@ -7,6 +7,7 @@ OTHER_FLAVOR=ic
 endif
 
 PWD=$(shell pwd)
+FAKEROOT=fakeroot -i fakeroot.save -s fakeroot.save
 
 all: check-settings clean intellij-idea-$(FLAVOR_LOWER)-$(VERSION).deb
 
@@ -24,7 +25,8 @@ clean:
 .PHONY: check-settings clean root/usr/bin/idea root/DEBIAN/control
 
 intellij-idea-$(FLAVOR_LOWER)-$(VERSION).deb: root/DEBIAN/control root/usr/bin/idea root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION)
-	@dpkg-deb -b root $@
+	@$(FAKEROOT) -- chown -R root:root root/
+	@$(FAKEROOT) -- dpkg-deb -b root $@
 
 root/usr/bin/idea: idea.in
 	@echo Creating $@
