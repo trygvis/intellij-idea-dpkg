@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=IntelliJ IDEA
+Comment=The Most Intelligent Java IDE
+Exec=/usr/bin/idea
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=/usr/share/intellij/idea-IU-92.81/bin/idea128.png
+Categories=Development;IDE;Debugger;Profiling

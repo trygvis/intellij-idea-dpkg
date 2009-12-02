@@ -13,11 +13,8 @@ OTHER_FLAVOR=IC
 OTHER_FLAVOR_LOWER=ic
 endif
 
-ifdef REVISION
-V=$(VERSION)-$(REVISION)
-else
-V=$(VERSION)-1
-endif
+COUNT=$(words $(wildcard intellij-idea-$(FLAVOR_LOWER)-$(VERSION)-*.deb))
+REVISION=$(shell perl -e "print $(COUNT)+1")
 
 PWD=$(shell pwd)
 FAKEROOT=fakeroot -i fakeroot.save -s fakeroot.save
@@ -28,13 +25,16 @@ check-settings:
 	@if [ -z "$(FLAVOR)" ]; then echo "Make sure FLAVOR is set when running make; for example: make FLAVOR=IU VERSION=90.162"; exit 1; fi
 	@if [ "$(FLAVOR)" != "IU" -a "$(FLAVOR)" != "IC" ]; then echo "Make sure FLAVOR is set to either 'IU' or 'IC'."; exit 1; fi
 	@if [ -z "$(VERSION)" ]; then echo "Make sure VERSION is set when running make; for example: make FLAVOR=IU VERSION=90.162"; exit 1; fi
-	@if [ "$(REVISION)" = "1" ]; then echo "REVISION has to be higher than 1; for example: make FLAVOR=IU VERSION=90.162 REVISION=2"; exit 1; fi
+	@echo Building revision "#"$(REVISION) of $(VERSION) package.
 
 clean:
 	@echo Cleaning
 	@rm -rf root *.save
 
-intellij-idea-$(FLAVOR_LOWER)-$(V).deb: root/DEBIAN/control root/usr/bin/idea root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION)
+intellij-idea-$(FLAVOR_LOWER)-$(V).deb: root/DEBIAN/control \
+                                        root/usr/bin/idea \
+                                        root/usr/share/applications/intellij-idea.desktop \
+                                        root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION)
 	@touch fakeroot.save
 	@$(FAKEROOT) -- chown -R root:root root/
 	@$(FAKEROOT) -- dpkg-deb -b root $@
@@ -60,9 +60,14 @@ root/DEBIAN/control: control.in
 		$< > $@
 
 root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION): idea-$(FLAVOR)-$(VERSION).tar.gz
-	@mkdir -p $(shell dirname $@)
 	@echo Unpacking $?
+	@mkdir -p $(shell dirname $@)
 	@(cd $(shell dirname $@); tar zxf $(PWD)/$<)
+
+root/usr/share/applications/intellij-idea.desktop:
+	@echo Installing $@
+	@mkdir -p $(shell dirname $@)
+	@cp intellij-idea.desktop $@
 
 idea-$(FLAVOR)-$(VERSION).tar.gz:
 	wget -O $@ http://download.jetbrains.com/idea/idea$(FLAVOR)-$(VERSION).tar.gz
