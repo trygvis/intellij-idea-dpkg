@@ -1,8 +1,8 @@
-Package: intellij-idea-FLAVOR
+Package: intellij-idea-FLAVOR_LOWER
 Section: devel
 Version: VERSION
 Maintainer: Trygve Laugstøl <trygvis@inamo.no>
 Architecture: all
 Depends: sun-java6-jdk
-Conflicts: intellij-idea-OTHER_FLAVOR
+Conflicts: intellij-idea-OTHER_FLAVOR_LOWER, intellij-idea-OTHER_FLAVOR, intellij-idea-FLAVOR
 Description: The Most Intelligent Java IDE
