@@ -3,6 +3,8 @@
 # TODO: Write notes on how to use
 # TODO: Support for signing the packages
 
+REPO ?= intellij-idea
+
 ifeq ($(FLAVOR),IC)
 FLAVOR_LOWER=ic
 OTHER_FLAVOR=IU
@@ -13,31 +15,44 @@ OTHER_FLAVOR=IC
 OTHER_FLAVOR_LOWER=ic
 endif
 
-COUNT=$(words $(wildcard intellij-idea-$(FLAVOR_LOWER)-$(VERSION)-*.deb))
+COUNT=$(words $(wildcard $(REPO)/intellij-idea-$(FLAVOR_LOWER)-$(VERSION)-*.deb))
 REVISION=$(shell perl -e "print $(COUNT)+1")
+V=$(VERSION)-$(REVISION)
 
 PWD=$(shell pwd)
 FAKEROOT=fakeroot -i fakeroot.save -s fakeroot.save
 
-all: check-settings clean intellij-idea-$(FLAVOR_LOWER)-$(V).deb
+.PHONY: check-settings clean download
+
+all: check-settings repo/intellij-idea-$(FLAVOR_LOWER)-$(V).deb $(REPO)/Packages.gz
 
 check-settings:
 	@if [ -z "$(FLAVOR)" ]; then echo "Make sure FLAVOR is set when running make; for example: make FLAVOR=IU VERSION=90.162"; exit 1; fi
 	@if [ "$(FLAVOR)" != "IU" -a "$(FLAVOR)" != "IC" ]; then echo "Make sure FLAVOR is set to either 'IU' or 'IC'."; exit 1; fi
 	@if [ -z "$(VERSION)" ]; then echo "Make sure VERSION is set when running make; for example: make FLAVOR=IU VERSION=90.162"; exit 1; fi
-	@echo Building revision "#"$(REVISION) of $(VERSION) package.
+	@echo Parameters: version=$(VERSION), flavor=$(FLAVOR), revision=$(REVISION)
 
 clean:
 	@echo Cleaning
 	@rm -rf root *.save
 
-intellij-idea-$(FLAVOR_LOWER)-$(V).deb: root/DEBIAN/control \
-                                        root/usr/bin/idea \
-                                        root/usr/share/applications/intellij-idea.desktop \
-                                        root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION)
-	@touch fakeroot.save
-	@$(FAKEROOT) -- chown -R root:root root/
-	@$(FAKEROOT) -- dpkg-deb -b root $@
+%.gz:%
+	@echo GZ $<
+	@gzip -c $< > $@
+
+######################################################################
+# Package Creation
+
+download: download/idea-$(FLAVOR)-$(VERSION).tar.gz
+
+download/idea-$(FLAVOR)-$(VERSION).tar.gz:
+	@mkdir -p $(shell dirname $@)
+	wget -O $@ http://download.jetbrains.com/idea/idea$(FLAVOR)-$(VERSION).tar.gz
+
+root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION): download/idea-$(FLAVOR)-$(VERSION).tar.gz
+	@echo Unpacking $?
+	@mkdir -p $(shell dirname $@)
+	@(cd $(shell dirname $@); tar zxf $(PWD)/$<)
 
 root/usr/bin/idea: idea.in
 	@echo Creating $@
@@ -59,15 +74,27 @@ root/DEBIAN/control: control.in
 		-e "s,VERSION,$(V)," \
 		$< > $@
 
-root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION): idea-$(FLAVOR)-$(VERSION).tar.gz
-	@echo Unpacking $?
-	@mkdir -p $(shell dirname $@)
-	@(cd $(shell dirname $@); tar zxf $(PWD)/$<)
-
 root/usr/share/applications/intellij-idea.desktop:
 	@echo Installing $@
 	@mkdir -p $(shell dirname $@)
 	@cp intellij-idea.desktop $@
 
-idea-$(FLAVOR)-$(VERSION).tar.gz:
-	wget -O $@ http://download.jetbrains.com/idea/idea$(FLAVOR)-$(VERSION).tar.gz
+repo/intellij-idea-$(FLAVOR_LOWER)-$(V).deb: \
+        clean \
+        root/DEBIAN/control \
+        root/usr/bin/idea \
+        root/usr/share/applications/intellij-idea.desktop \
+        root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION)
+	@touch fakeroot.save
+	@$(FAKEROOT) -- chown -R root:root root/
+	@$(FAKEROOT) -- dpkg-deb -b root $@
+
+######################################################################
+# Package Repository
+
+#	(cd $(REPO) && dpkg-scanpackages -m $(dir $@) /dev/null) > $@.new
+$(REPO)/Packages:
+	(cd $(REPO)/.. && dpkg-scanpackages -m $(shell basename $(abspath $(REPO))) /dev/null) > $@.new
+	mv $@.new $@
+
+$(REPO)/Packages.gz:
