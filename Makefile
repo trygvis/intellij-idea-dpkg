@@ -24,7 +24,7 @@ FAKEROOT=fakeroot -i fakeroot.save -s fakeroot.save
 
 .PHONY: check-settings clean download
 
-all: check-settings repo/intellij-idea-$(FLAVOR_LOWER)-$(V).deb $(REPO)/Packages.gz
+all: check-settings $(REPO)/intellij-idea-$(FLAVOR_LOWER)-$(V).deb $(REPO)/Packages.gz
 
 check-settings:
 	@if [ -z "$(FLAVOR)" ]; then echo "Make sure FLAVOR is set when running make; for example: make FLAVOR=IU VERSION=90.162"; exit 1; fi
@@ -79,7 +79,7 @@ root/usr/share/applications/intellij-idea.desktop:
 	@mkdir -p $(shell dirname $@)
 	@cp intellij-idea.desktop $@
 
-repo/intellij-idea-$(FLAVOR_LOWER)-$(V).deb: \
+$(REPO)/intellij-idea-$(FLAVOR_LOWER)-$(V).deb: \
         clean \
         root/DEBIAN/control \
         root/usr/bin/idea \
