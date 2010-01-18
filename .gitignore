@@ -1,4 +1,5 @@
 *.save
+*~
 root
 download/*.tar.gz
 intellij-idea/*.deb

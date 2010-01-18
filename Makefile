@@ -22,7 +22,7 @@ V=$(VERSION)-$(REVISION)
 PWD=$(shell pwd)
 FAKEROOT=fakeroot -i fakeroot.save -s fakeroot.save
 
-.PHONY: check-settings clean download
+.PHONY: check-settings clean download $(REPO)/Packages.gz
 
 all: check-settings $(REPO)/intellij-idea-$(FLAVOR_LOWER)-$(V).deb $(REPO)/Packages.gz
 
@@ -97,4 +97,4 @@ $(REPO)/Packages:
 	(cd $(REPO)/.. && dpkg-scanpackages -m $(shell basename $(abspath $(REPO))) /dev/null) > $@.new
 	mv $@.new $@
 
-$(REPO)/Packages.gz:
+$(REPO)/Packages.gz: $(REPO)/Packages
