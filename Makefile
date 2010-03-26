@@ -66,6 +66,7 @@ root/usr/bin/idea: idea.in
 root/DEBIAN/control: control.in
 	@echo Creating $@
 	@mkdir -p $(shell dirname $@)
+	@chmod 755 $(shell dirname $@)
 	@sed \
 		-e "s,OTHER_FLAVOR_LOWER,$(OTHER_FLAVOR_LOWER)," \
 		-e "s,OTHER_FLAVOR,$(OTHER_FLAVOR)," \
@@ -85,6 +86,7 @@ $(REPO)/intellij-idea-$(FLAVOR_LOWER)-$(V).deb: \
         root/usr/bin/idea \
         root/usr/share/applications/intellij-idea.desktop \
         root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION)
+	@mkdir -p $(REPO)
 	@touch fakeroot.save
 	@$(FAKEROOT) -- chown -R root:root root/
 	@$(FAKEROOT) -- dpkg-deb -b root $@
