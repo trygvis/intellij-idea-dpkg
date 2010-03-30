@@ -49,10 +49,10 @@ download/idea-$(FLAVOR)-$(VERSION).tar.gz:
 	@mkdir -p $(shell dirname $@)
 	wget -O $@ http://download.jetbrains.com/idea/idea$(FLAVOR)-$(VERSION).tar.gz
 
-root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION): download/idea-$(FLAVOR)-$(VERSION).tar.gz
+root/usr/share/jetbrains/intellij-idea: download/idea-$(FLAVOR)-$(VERSION).tar.gz
 	@echo Unpacking $?
 	@mkdir -p $(shell dirname $@)
-	@(cd $(shell dirname $@); tar zxf $(PWD)/$<)
+	@(cd $(shell dirname $@); tar zxf --strip-components 1 $(PWD)/$<)
 
 root/usr/bin/idea: idea.in
 	@echo Creating $@

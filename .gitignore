@@ -4,3 +4,4 @@ root
 download/*.tar.gz
 intellij-idea/*.deb
 intellij-idea/Packages*
+solaris

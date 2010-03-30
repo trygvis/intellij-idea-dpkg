@@ -1,7 +1,32 @@
 #!/bin/sh
 
-JDK_HOME=/usr/lib/jvm/java-6-sun
-export JDK_HOME
+paths="/usr/jdk/instances/jdk1.6.0
+/usr/jdk/instances/jdk1.5.0
+/usr/lib/jvm/java-6-sun
+/usr/lib/jvm/java-5-sun"
 
-cd /usr/share/intellij/idea-FLAVOR-VERSION
+for path in $paths
+do
+  if [ -x $path/bin/java ]
+  then
+    JDK_HOME=$path
+    export JDK_HOME
+    break
+  fi
+done
+
+if [ -z "$JDK_HOME" ]
+then
+  echo "Could not find a suitable JDK installation amongst:" >/dev/stderr
+  for path in $paths
+  do
+    echo $path >/dev/stderr
+  done
+  exit 1
+fi
+
+echo "JDK_HOME=$JDK_HOME"
+
+cd /usr/share/jetbrains/intellij-idea
 exec bin/idea.sh "$@"
+

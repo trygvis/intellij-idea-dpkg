@@ -1,0 +1,105 @@
+#!/bin/sh
+
+set -e
+set -x
+
+flavor=$1
+platform=$2
+
+tar=`which gtar`
+if [ ! -x $tar ]
+then
+  tar=`which tar`
+  if [ ! -x $tar ]
+  then
+    echo "Could not find usable tar" >/dev/stderr
+    exit 1
+  fi
+fi
+
+usage() {
+  echo "usage: $0 [IU | IC] [solaris]" >/dev/stderr
+  exit 1
+}
+
+fetch_latest() {
+  if [ "$IDEA_URL" = "" ]
+  then
+    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/Maia+EAP"
+  fi
+
+  echo "Downloading and parsing.. $IDEA_URL"
+  wget -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
+    s,.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
+    s,.*\(idea..-[0-9]*.[0-9]*.tar.gz\).*,\1,p
+    s,.*-\([0-9]*.[0-9]*\).tar.gz,\1,p
+  }" | xargs | read url filename version
+
+  echo "Downloading latest version is $version"
+
+  mkdir -p download
+
+  # It would be possible to use the MD5 sum as a check here, then there would be no need to every force a download
+  #if [ -r "download/$filename" ]
+  #then
+  #  echo "$filename is already downloaded"
+  #else
+  #  echo "Downloading $url..."
+  #  wget -O "download/$filename" $url
+  #fi
+
+  wget -q -P download -N $url
+}
+
+build_common() {
+  mkdir -p root/usr/bin
+  cp idea.in root/usr/bin/idea
+  chmod +x root/usr/bin/idea
+
+  mkdir -p root/usr/share/applications
+  cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
+}
+
+build_solaris() {
+  rm -rf root
+  rm -rf solaris
+  mkdir -p solaris
+  mkdir -p root/usr/share/jetbrains/intellij-idea
+  $tar --strip-components 1 -C root/usr/share/jetbrains/intellij-idea -zxf download/$filename
+  build_common 
+
+  cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions solaris/
+  cat solaris/idea.vmoptions | grep -v yjpagent > root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions
+
+  sed -e "s,@VERSION@,$version," pkginfo.in > solaris/pkginfo
+  cp prototype.in solaris/prototype
+  pkgproto root=/ | awk '
+   {$5="root"}
+   $3 ~ /^\/$/ {$5="?"; $6="?"} 
+   $3 ~ /^\/usr$/ {$5="?"; $6="?"}
+   $3 ~ /^\/usr\/bin$/ {$5="?"; $6="?"}
+   $3 ~ /^\/usr\/share$/ {$5="?"; $6="?"}
+   $3 ~ /^\/usr\/share\/applications$/ {$5="?"; $6="?"}
+   {printf $1 " " $2 " " $3 " " $4 " " $5 " " $6 " \n"}' >> solaris/prototype
+  pkgmk -o -d solaris -f solaris/prototype -r .
+  echo "The package was successfully build in solaris/"
+  echo "To install run: pfexec pkgadd -d solaris intellij-idea"
+}
+
+if [ "$flavor" != "IU" -a "$flavor" != "IC" ]
+then
+  usage
+fi
+
+if [ "$platform" != "solaris" ]
+then
+  usage
+fi
+
+fetch_latest
+
+if [ "$platform" = "solaris" ]
+then
+  build_solaris
+fi
+

@@ -1,0 +1,7 @@
+NAME=Intellij IDEA
+PKG=intellij-idea
+VERSION=@VERSION@
+EMAIL=trygvis@inamo.no
+ARCH=i386
+CATEGORY=application
+
