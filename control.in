@@ -6,3 +6,4 @@ Architecture: all
 Depends: sun-java6-jdk
 Conflicts: intellij-idea-OTHER_FLAVOR_LOWER, intellij-idea-OTHER_FLAVOR, intellij-idea-FLAVOR
 Description: The Most Intelligent Java IDE
+

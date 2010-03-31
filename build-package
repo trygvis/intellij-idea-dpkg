@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 set -x
@@ -6,11 +6,11 @@ set -x
 flavor=$1
 platform=$2
 
-tar=`which gtar`
-if [ ! -x $tar ]
+tar=`which gtar || true`
+if [ ! -x "$tar" ]
 then
   tar=`which tar`
-  if [ ! -x $tar ]
+  if [ ! -x "$tar" ]
   then
     echo "Could not find usable tar" >/dev/stderr
     exit 1
@@ -18,7 +18,7 @@ then
 fi
 
 usage() {
-  echo "usage: $0 [IU | IC] [solaris]" >/dev/stderr
+  echo "usage: $0 [IU | IC] [solaris | debian]" >/dev/stderr
   exit 1
 }
 
@@ -29,13 +29,13 @@ fetch_latest() {
   fi
 
   echo "Downloading and parsing.. $IDEA_URL"
-  wget -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
+  read url filename version < <(wget -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
     s,.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
-    s,.*\(idea..-[0-9]*.[0-9]*.tar.gz\).*,\1,p
+    s,.*\(ideaI.-[0-9]*.[0-9]*.tar.gz\).*,\1,p
     s,.*-\([0-9]*.[0-9]*\).tar.gz,\1,p
-  }" | xargs | read url filename version
+  }" | xargs)
 
-  echo "Downloading latest version is $version"
+  echo "Downloading latest version: $version"
 
   mkdir -p download
 
@@ -52,7 +52,12 @@ fetch_latest() {
 }
 
 build_common() {
+  rm -rf root
+  mkdir -p root/usr/share/jetbrains/intellij-idea
   mkdir -p root/usr/bin
+
+  $tar --strip-components 1 -C root/usr/share/jetbrains/intellij-idea -zxf download/$filename
+
   cp idea.in root/usr/bin/idea
   chmod +x root/usr/bin/idea
 
@@ -61,12 +66,10 @@ build_common() {
 }
 
 build_solaris() {
-  rm -rf root
+  build_common 
+
   rm -rf solaris
   mkdir -p solaris
-  mkdir -p root/usr/share/jetbrains/intellij-idea
-  $tar --strip-components 1 -C root/usr/share/jetbrains/intellij-idea -zxf download/$filename
-  build_common 
 
   cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions solaris/
   cat solaris/idea.vmoptions | grep -v yjpagent > root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions
@@ -86,20 +89,51 @@ build_solaris() {
   echo "To install run: pfexec pkgadd -d solaris intellij-idea"
 }
 
+build_debian() {
+  build_common
+  mkdir -p root/DEBIAN
+
+  if [ $flavor = "IC" ]
+  then
+    OTHER_FLAVOR_LOWER=iu
+    OTHER_FLAVOR=IU
+    FLAVOR_LOWER=ic
+  else
+    OTHER_FLAVOR_LOWER=ic
+    OTHER_FLAVOR=IC
+    FLAVOR_LOWER=iu
+  fi
+
+  sed \
+    -e "s,OTHER_FLAVOR_LOWER,$OTHER_FLAVOR_LOWER," \
+    -e "s,OTHER_FLAVOR,$OTHER_FLAVOR," \
+    -e "s,FLAVOR_LOWER,$FLAVOR_LOWER," \
+    -e "s,FLAVOR,$flavor," \
+    -e "s,VERSION,$version," \
+    control.in > root/DEBIAN/control
+
+  touch fakeroot.save
+  FAKEROOT="fakeroot -i fakeroot.save -s fakeroot.save"
+  $FAKEROOT -- chown -R root:root root/
+  $FAKEROOT -- dpkg-deb -b root intellij-idea-$FLAVOR_LOWER-$version.deb
+}
+
 if [ "$flavor" != "IU" -a "$flavor" != "IC" ]
 then
   usage
 fi
 
-if [ "$platform" != "solaris" ]
+if [ "$platform" != "solaris" -a "$platform" != "debian" ]
 then
   usage
 fi
 
 fetch_latest
 
-if [ "$platform" = "solaris" ]
-then
-  build_solaris
-fi
+case "$platform" in
+  solaris)
+    build_solaris;;
+  debian)
+    build_debian;;
+esac
 
