@@ -52,7 +52,7 @@ download/idea-$(FLAVOR)-$(VERSION).tar.gz:
 root/usr/share/jetbrains/intellij-idea: download/idea-$(FLAVOR)-$(VERSION).tar.gz
 	@echo Unpacking $?
 	@mkdir -p $(shell dirname $@)
-	@(cd $(shell dirname $@); tar zxf --strip-components 1 $(PWD)/$<)
+	@(cd $(shell dirname $@); tar --strip-components 1 -zxf $(PWD)/$<)
 
 root/usr/bin/idea: idea.in
 	@echo Creating $@
@@ -85,7 +85,7 @@ $(REPO)/intellij-idea-$(FLAVOR_LOWER)-$(V).deb: \
         root/DEBIAN/control \
         root/usr/bin/idea \
         root/usr/share/applications/intellij-idea.desktop \
-        root/usr/share/intellij/idea-$(FLAVOR)-$(VERSION)
+        root/usr/share/jetbrains/intellij-idea
 	@mkdir -p $(REPO)
 	@touch fakeroot.save
 	@$(FAKEROOT) -- chown -R root:root root/
