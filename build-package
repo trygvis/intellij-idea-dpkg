@@ -1,24 +1,10 @@
 #!/bin/bash
 
 set -e
-set -x
-
-flavor=$1
-platform=$2
-
-tar=`which gtar || true`
-if [ ! -x "$tar" ]
-then
-  tar=`which tar`
-  if [ ! -x "$tar" ]
-  then
-    echo "Could not find usable tar" >/dev/stderr
-    exit 1
-  fi
-fi
+#set -x
 
 usage() {
-  echo "usage: $0 [IU | IC] [solaris | debian]" >/dev/stderr
+  echo "usage: $0 -f [IU | IC] -p [solaris | debian] [-v version]" >/dev/stderr
   exit 1
 }
 
@@ -28,14 +14,14 @@ fetch_latest() {
     IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/Maia+EAP"
   fi
 
-  echo "Downloading and parsing.. $IDEA_URL"
+  echo "Downloading and parsing... $IDEA_URL"
   read url filename version < <(wget -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
     s,.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
     s,.*\(ideaI.-[0-9]*.[0-9]*.tar.gz\).*,\1,p
     s,.*-\([0-9]*.[0-9]*\).tar.gz,\1,p
   }" | xargs)
 
-  echo "Downloading latest version: $version"
+  echo "Latest version is $version, downloading..."
 
   mkdir -p download
 
@@ -56,6 +42,7 @@ build_common() {
   mkdir -p root/usr/share/jetbrains/intellij-idea
   mkdir -p root/usr/bin
 
+  echo "Unpacking tarball"
   $tar --strip-components 1 -C root/usr/share/jetbrains/intellij-idea -zxf download/$filename
 
   cp idea.in root/usr/bin/idea
@@ -78,15 +65,20 @@ build_solaris() {
   cp prototype.in solaris/prototype
   pkgproto root=/ | awk '
    {$5="root"}
-   $3 ~ /^\/$/ {$5="?"; $6="?"} 
-   $3 ~ /^\/usr$/ {$5="?"; $6="?"}
-   $3 ~ /^\/usr\/bin$/ {$5="?"; $6="?"}
-   $3 ~ /^\/usr\/share$/ {$5="?"; $6="?"}
-   $3 ~ /^\/usr\/share\/applications$/ {$5="?"; $6="?"}
+   $3 ~ /^\/$/ {getline} 
+   $3 ~ /^\/usr$/ {getline}
+   $3 ~ /^\/usr\/bin$/ {getline}
+   $3 ~ /^\/usr\/share$/ {getline}
+   $3 ~ /^\/usr\/share\/applications$/ {getline}
    {printf $1 " " $2 " " $3 " " $4 " " $5 " " $6 " \n"}' >> solaris/prototype
   pkgmk -o -d solaris -f solaris/prototype -r .
+
+  repo=`pwd`/repository/solaris/`uname -p`/`uname -r`
+  mkdir -p $repo
+  pkg_filename=$repo/intellij-idea-$version-`uname -s``uname -r`-`uname -p`.pkg
+  pkgtrans -s solaris $pkg_filename intellij-idea
   echo "The package was successfully build in solaris/"
-  echo "To install run: pfexec pkgadd -d solaris intellij-idea"
+  echo "To install run: pfexec pkgadd -d $pkg_filename"
 }
 
 build_debian() {
@@ -112,23 +104,66 @@ build_debian() {
     -e "s,VERSION,$version," \
     control.in > root/DEBIAN/control
 
+  # TODO: Add arch to the filename (i386, amd64)
+  mkdir -p repository/debian
+  deb_filename=repository/debian/intellij-idea-$FLAVOR_LOWER-$version.deb
+
   touch fakeroot.save
   FAKEROOT="fakeroot -i fakeroot.save -s fakeroot.save"
   $FAKEROOT -- chown -R root:root root/
-  $FAKEROOT -- dpkg-deb -b root intellij-idea-$FLAVOR_LOWER-$version.deb
+  $FAKEROOT -- dpkg-deb -b root $deb_filename
 }
 
-if [ "$flavor" != "IU" -a "$flavor" != "IC" ]
+tar=`which gtar || true`
+if [ ! -x "$tar" ]
+then
+  tar=`which tar`
+  if [ ! -x "$tar" ]
+ then
+    echo "Could not find usable tar" >/dev/stderr
+    exit 1
+  fi
+fi
+
+while getopts "f:p:v:" flag
+do
+  case "$flag" in
+    f) 
+      flavor=$OPTARG
+
+      if [ "$flavor" != "IU" -a "$flavor" != "IC" ]
+      then
+        usage
+      fi
+      ;;
+    p) 
+      platform=$OPTARG
+
+      if [ "$platform" != "solaris" -a "$platform" != "debian" ]
+      then
+        usage
+      fi
+      ;;
+    v)
+      version=$OPTARG
+      ;;
+  esac
+done
+
+if [ -z "$flavor" -o -z "$platform" ]
 then
   usage
 fi
 
-if [ "$platform" != "solaris" -a "$platform" != "debian" ]
+if [ -z "$version" ]
 then
-  usage
+  echo "Fetching latest version"
+  fetch_latest
+else
+  echo "Fetching version $version..."
+  wget -q -P download -N http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
+  filename=idea$flavor-$version.tar.gz
 fi
-
-fetch_latest
 
 case "$platform" in
   solaris)
@@ -136,4 +171,3 @@ case "$platform" in
   debian)
     build_debian;;
 esac
-

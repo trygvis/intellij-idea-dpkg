@@ -1,0 +1,57 @@
+SYNOPSIS
+
+  ./build-package -f <flavor> -p <platform> -v <version>
+
+DESCRIPTION
+
+  build-package will create a platform-specific package of Jetbrain's
+  Intellij IDEA. The packages can be installed using platform
+  specific/native tools and/or distributed from local package
+  repositories. It currently only supports building packages of the
+  development builds of IDEA.
+
+OPTIONS
+
+  -f <flavor>
+
+    The IDEA flavor to package. 'flavor' can be one of 'IU' and 'IC'
+    for IDEA Ultimate or IDEA Community Edition respectively.
+
+  -p <platform>
+
+    The operating system platform to build the package for. Can be one
+    of 'debian' and 'solaris'.
+    
+    'debian' will build a package for any of the Debian based Linux
+    distributions, including Debian and Ubuntu.
+
+    'solaris' will build a package for Solaris 8 to 10. The package itself
+    will work on later versions of Solaris and OpenSolaris but uses the
+    'old style' packaging tools (pkgadd, pkgmk, etc)
+
+    Platform autodetection will be implemented once someone has been
+    annoyed enough by the manual procedure.
+
+  -v <version>
+
+    The version of the build to use. If not specified the script will
+    automatically find and download the latest build discovered from
+    http://confluence.jetbrains.net/display/IDEADEV/Maia+EAP
+
+SOLARIS
+
+  To build a pkgutil repository run bldcat like this:
+
+    bldcat repository/solaris/`uname -p`/`uname -r`
+  
+  make sure you have the "pkgutilplus" package installed
+
+EXAMPLES
+
+  Example 1: Creating a Solaris package of the latest Ultimate Edition.
+
+    ./build-package -f IU -p solaris
+
+  Example 2: Creating a Debian package of the 95.4 build of the Community Edition.
+
+    ./build-package -f IC -p debian -v 95.4
