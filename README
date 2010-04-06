@@ -1,6 +1,6 @@
 SYNOPSIS
 
-  ./build-package -f <flavor> -p <platform> -v <version>
+  ./build-package -f <flavor> -p <platform> -v <version> -u
 
 DESCRIPTION
 
@@ -31,6 +31,13 @@ OPTIONS
 
     Platform autodetection will be implemented once someone has been
     annoyed enough by the manual procedure.
+
+  -u
+
+    Updates the package repository with the appropriate command for
+    the platform.
+
+    For debian this means dpkg-scanpackages, for solaris bldcat is used.
 
   -v <version>
 
