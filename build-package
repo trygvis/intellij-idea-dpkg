@@ -108,7 +108,7 @@ build_debian() {
   mkdir -p repository/debian
   deb_filename=repository/debian/intellij-idea-$FLAVOR_LOWER-$version.deb
 
-  touch fakeroot.save
+  echo > fakeroot.save
   FAKEROOT="fakeroot -i fakeroot.save -s fakeroot.save"
   $FAKEROOT -- chown -R root:root root/
   $FAKEROOT -- dpkg-deb -b root $deb_filename
