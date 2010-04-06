@@ -55,3 +55,13 @@ EXAMPLES
   Example 2: Creating a Debian package of the 95.4 build of the Community Edition.
 
     ./build-package -f IC -p debian -v 95.4
+
+BUGS
+
+  The scripts are not bullet proof, so there might certainly be bugs in
+  them. The scripts also depend on jetbrains to not change the way they
+  package and distribute the tar files.
+
+  If you find a bug, please file a bug on GitHub:
+
+    http://github.com/trygvis/intellij-idea-dpkg/issues
