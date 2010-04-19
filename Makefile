@@ -51,8 +51,8 @@ download/idea-$(FLAVOR)-$(VERSION).tar.gz:
 
 root/usr/share/jetbrains/intellij-idea: download/idea-$(FLAVOR)-$(VERSION).tar.gz
 	@echo Unpacking $?
-	@mkdir -p $(shell dirname $@)
-	@(cd $(shell dirname $@); tar --strip-components 1 -zxf $(PWD)/$<)
+	@mkdir -p $@
+	@(cd $@; tar --strip-components 1 -zxf $(PWD)/$<)
 
 root/usr/bin/idea: idea.in
 	@echo Creating $@
