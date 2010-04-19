@@ -45,6 +45,11 @@ OPTIONS
     automatically find and download the latest build discovered from
     http://confluence.jetbrains.net/display/IDEADEV/Maia+EAP
 
+  -F
+
+    Force a build of a package, even if there is a package with the same
+    version in the repository.
+
 SOLARIS
 
   To build a pkgutil repository run bldcat like this:
