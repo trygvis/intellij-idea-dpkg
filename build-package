@@ -27,11 +27,17 @@ find_latest() {
 
 build_common() {
   rm -rf root
-  mkdir -p root/usr/share/jetbrains/intellij-idea
+  if [ ! -z "$src_dir" ]
+  then
+    echo "Copying IDEA from $src_dir"
+    mkdir -p root/usr/share/jetbrains
+    cp -r "$src_dir" root/usr/share/jetbrains/intellij-idea
+  else
+    echo "Unpacking tarball"
+    mkdir -p root/usr/share/jetbrains/intellij-idea
+    $tar --strip-components 1 -C root/usr/share/jetbrains/intellij-idea -zxf download/$filename
+  fi
   mkdir -p root/usr/bin
-
-  echo "Unpacking tarball"
-  $tar --strip-components 1 -C root/usr/share/jetbrains/intellij-idea -zxf download/$filename
 
   cp idea.in root/usr/bin/idea
   chmod +x root/usr/bin/idea
@@ -83,7 +89,7 @@ build_solaris() {
 
   if [ "$update_repository" = 1 ]
   then
-      bldcat -b $repo
+    bldcat -b $repo
   fi
 }
 
@@ -106,7 +112,7 @@ build_debian() {
 
   if [ "$update_repository" = 1 ]
   then
-      (cd $repo && dpkg-scanpackages -m . /dev/null | tee Packages | gzip > Packages.gz )
+    (cd $repo && dpkg-scanpackages -m . /dev/null | tee Packages | gzip > Packages.gz )
   fi
 }
 
@@ -115,15 +121,18 @@ if [ ! -x "$tar" ]
 then
   tar=`which tar`
   if [ ! -x "$tar" ]
- then
+  then
     echo "Could not find usable tar" >/dev/stderr
     exit 1
   fi
 fi
 
-while getopts "f:p:v:u?F" flag
+while getopts "f:Fp:s:v:u?" flag
 do
   case "$flag" in
+    s)
+      src_dir=$OPTARG
+      ;;
     f) 
       flavor=$OPTARG
 
@@ -172,18 +181,33 @@ else
   FLAVOR_LOWER=iu
 fi
 
-if [ -z "$version" ]
+if [ -z "$src_dir" ]
 then
-  find_latest
-  echo "The latest version is $version"
+  if [ -z "$version" ]
+  then
+    find_latest
+    echo "The latest version is $version"
+  else
+    url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
+    filename=idea$flavor-$version.tar.gz
+  fi
 else
-  url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
-  filename=idea$flavor-$version.tar.gz
+  if [ -z "$version" ]
+  then
+    echo "When building from a directory, a version has to be specified with -v." >/dev/stderr
+    exit 1
+  fi
+
+  if [ ! -d "$src_dir" ]
+  then
+    echo "Not a directory: $src_dir" >/dev/stderr
+    exit 1
+  fi
 fi
 
 calculate_package_filename
 
-if [ -r $package_filename ]
+if [ -r "$package_filename" ]
 then
   if [ $force = "false" ]
   then
@@ -194,28 +218,31 @@ then
   fi
 fi
 
-mkdir -p download
-
-# It would be possible to use the MD5 sum as a check here, then there would be no need to every force a download
-#if [ -r "download/$filename" ]
-#then
-#  echo "$filename is already downloaded"
-#else
-#  echo "Downloading $url..."
-#  wget -O "download/$filename" $url
-#fi
-
-echo "Downloading version $version..."
-if [ `wget -q -P download -N $url; echo $?` != "0" ]
+if [ -z "$src_dir" ]
 then
-  echo "Could not download $url" > /dev/stderr
-  exit 1
-fi
+  mkdir -p download
 
-if [ ! -r download/$filename ]
-then
-  echo "wget didn't place the downloaded file where expected: download/$filename"
-  exit 1
+  # It would be possible to use the MD5 sum as a check here, then there would be no need to every force a download
+  #if [ -r "download/$filename" ]
+  #then
+  #  echo "$filename is already downloaded"
+  #else
+  #  echo "Downloading $url..."
+  #  wget -O "download/$filename" $url
+  #fi
+
+  echo "Downloading version $version..."
+  if [ `wget -q -P download -N $url; echo $?` != "0" ]
+  then
+    echo "Could not download $url" > /dev/stderr
+    exit 1
+  fi
+
+  if [ ! -r download/$filename ]
+  then
+    echo "wget didn't place the downloaded file where expected: download/$filename"
+    exit 1
+  fi
 fi
 
 case "$platform" in
