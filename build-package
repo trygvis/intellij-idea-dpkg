@@ -6,8 +6,8 @@ set -e
 force=false
 
 usage() {
-  echo "usage: $0 OPTIONS" >/dev/stderr
-  echo "Use $0 -? for usage help" >/dev/stderr
+  echo "usage: $0 OPTIONS" >&2
+  echo "Use $0 -? for usage help" >&2
   exit 1
 }
 
@@ -23,6 +23,12 @@ find_latest() {
     s,.*\(ideaI.-[0-9]*.[0-9]*.tar.gz\).*,\1,p
     s,.*-\([0-9]*.[0-9]*\).tar.gz,\1,p
   }" | xargs)
+
+  if [ -z "$url" -o -z "$filename" -o -z "$version" ]
+  then
+    echo "Unable to find the latest version." >&2
+    exit 1
+  fi
 }
 
 build_common() {
@@ -122,7 +128,7 @@ then
   tar=`which tar`
   if [ ! -x "$tar" ]
   then
-    echo "Could not find usable tar" >/dev/stderr
+    echo "Could not find usable tar" >&2
     exit 1
   fi
 fi
@@ -194,13 +200,13 @@ then
 else
   if [ -z "$version" ]
   then
-    echo "When building from a directory, a version has to be specified with -v." >/dev/stderr
+    echo "When building from a directory, a version has to be specified with -v." >&2
     exit 1
   fi
 
   if [ ! -d "$src_dir" ]
   then
-    echo "Not a directory: $src_dir" >/dev/stderr
+    echo "Not a directory: $src_dir" >&2
     exit 1
   fi
 fi
@@ -211,10 +217,10 @@ if [ -r "$package_filename" ]
 then
   if [ $force = "false" ]
   then
-    echo "The requested version ($version) already exist in the repository, add -F to force a re-build of the package" > /dev/stderr
+    echo "The requested version ($version) already exist in the repository, add -F to force a re-build of the package" >&2
     exit 1
   else
-    echo "WARNING: re-building package for version $version" > /dev/stderr
+    echo "WARNING: re-building package for version $version" >&2
   fi
 fi
 
@@ -234,13 +240,13 @@ then
   echo "Downloading version $version..."
   if [ `wget -q -P download -N $url; echo $?` != "0" ]
   then
-    echo "Could not download $url" > /dev/stderr
+    echo "Could not download $url" >&2
     exit 1
   fi
 
   if [ ! -r download/$filename ]
   then
-    echo "wget didn't place the downloaded file where expected: download/$filename"
+    echo "wget didn't place the downloaded file where expected: download/$filename" >&2
     exit 1
   fi
 fi
