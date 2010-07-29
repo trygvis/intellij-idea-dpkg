@@ -14,7 +14,7 @@ usage() {
 find_latest() {
   if [ "$IDEA_URL" = "" ]
   then
-    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/Maia+EAP"
+    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
   fi
 
   echo "Finding latest version from $IDEA_URL..."
