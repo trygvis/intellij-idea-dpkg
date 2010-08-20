@@ -4,6 +4,7 @@ set -e
 #set -x
 
 force=false
+umask=022
 
 usage() {
   echo "usage: $0 OPTIONS" >&2
@@ -46,7 +47,7 @@ build_common() {
   mkdir -p root/usr/bin
 
   cp idea.in root/usr/bin/idea
-  chmod +x root/usr/bin/idea
+  chmod +rx root/usr/bin/idea
 
   mkdir -p root/usr/share/applications
   cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop

@@ -66,7 +66,6 @@ root/usr/bin/idea: idea.in
 root/DEBIAN/control: control.in
 	@echo Creating $@
 	@mkdir -p $(shell dirname $@)
-	@chmod 755 $(shell dirname $@)
 	@sed \
 		-e "s,OTHER_FLAVOR_LOWER,$(OTHER_FLAVOR_LOWER)," \
 		-e "s,OTHER_FLAVOR,$(OTHER_FLAVOR)," \
