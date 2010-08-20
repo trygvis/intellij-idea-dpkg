@@ -50,6 +50,10 @@ build_common() {
 
   mkdir -p root/usr/share/applications
   cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
+
+  fn=/tmp/idea.vmoptions.$$
+  cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions $fn
+  cat $fn | grep -v yjpagent > root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions
 }
 
 calculate_package_filename() {
@@ -73,9 +77,6 @@ build_solaris() {
 
   rm -rf solaris
   mkdir -p solaris
-
-  cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions solaris/
-  cat solaris/idea.vmoptions | grep -v yjpagent > root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions
 
   sed -e "s,@VERSION@,$version," pkginfo.in > solaris/pkginfo
   cp prototype.in solaris/prototype
