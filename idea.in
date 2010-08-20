@@ -1,19 +1,27 @@
 #!/bin/sh
 
-paths="/usr/jdk/instances/jdk1.6.0
+paths="
+/usr/jdk/instances/jdk1.6.0
 /usr/jdk/instances/jdk1.5.0
 /usr/lib/jvm/java-6-sun
 /usr/lib/jvm/java-5-sun"
 
-for path in $paths
-do
-  if [ -x $path/bin/java ]
-  then
-    JDK_HOME=$path
-    export JDK_HOME
-    break
-  fi
-done
+if [ -r /etc/default/idea ]
+then
+  source /etc/default/idea
+fi
+
+if [ -z "$JDK_HOME" ]
+then
+  for path in $paths
+  do
+    if [ -x $path/bin/java ]
+    then
+      JDK_HOME=$path
+      break
+    fi
+  done
+fi
 
 if [ -z "$JDK_HOME" ]
 then
@@ -22,10 +30,12 @@ then
   do
     echo $path >/dev/stderr
   done
+  echo "Either install a JDK in one of those locations or configure JDK_HOME in /etc/default/idea:" >/dev/stderr
   exit 1
 fi
 
 echo "JDK_HOME=$JDK_HOME"
+export JDK_HOME
 
 cd /usr/share/jetbrains/intellij-idea
 exec bin/idea.sh "$@"
