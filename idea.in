@@ -2,8 +2,10 @@
 
 paths="
 /usr/jdk/instances/jdk1.6.0
-/usr/jdk/instances/jdk1.5.0
 /usr/lib/jvm/java-6-sun
+/usr/lib/jvm/java-6-openjdk
+
+/usr/jdk/instances/jdk1.5.0
 /usr/lib/jvm/java-5-sun"
 
 if [ -r /etc/default/idea ]
