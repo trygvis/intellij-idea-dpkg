@@ -51,7 +51,13 @@ build_common() {
   chmod +rx root/usr/bin/idea
 
   mkdir -p root/usr/share/applications
-  cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
+  if [ "$FLAVOR_LOWER" == "ic" ]
+  then
+    # IC version has different icon name
+    sed 's|/idea128\.png$|/idea_CE128.png|' intellij-idea.desktop > root/usr/share/applications/intellij-idea.desktop
+  else
+    cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
+  fi
 
   fn=/tmp/idea.vmoptions.$$
   cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions $fn
