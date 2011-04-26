@@ -20,7 +20,7 @@ find_latest() {
   fi
 
   echo "Finding latest version from $IDEA_URL ..."
-  read url filename version < <(wget -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
+  read url filename version skip_the_rest < <(wget -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
     s,.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
     s,.*\(ideaI.-[0-9]*.[0-9]*.tar.gz\).*,\1,p
     s,.*-\([0-9]*.[0-9]*\).tar.gz,\1,p
@@ -51,7 +51,13 @@ build_common() {
   chmod +rx root/usr/bin/idea
 
   mkdir -p root/usr/share/applications
-  cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
+  if [ "$FLAVOR_LOWER" == "ic" ]
+  then
+    # IC version has different icon name
+    sed 's|/idea128\.png$|/idea_CE128.png|' intellij-idea.desktop > root/usr/share/applications/intellij-idea.desktop
+  else
+    cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
+  fi
 
   fn=/tmp/idea.vmoptions.$$
   cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions $fn
