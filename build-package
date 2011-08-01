@@ -110,6 +110,11 @@ build_solaris() {
 
 build_debian() {
   build_common
+
+  mkdir -p root/etc/sysctl.d
+  cp debian/sysctl-99-intellij.conf root/etc/sysctl.d/99-intellij.conf
+  chmod +rx root/usr/bin/idea
+
   mkdir -p root/DEBIAN
 
   sed \
@@ -118,12 +123,16 @@ build_debian() {
     -e "s,FLAVOR_LOWER,$FLAVOR_LOWER," \
     -e "s,FLAVOR,$flavor," \
     -e "s,VERSION,$version," \
-    control.in > root/DEBIAN/control
+    debian/control.in > root/DEBIAN/control
 
-  echo > fakeroot.save
-  FAKEROOT="fakeroot -i fakeroot.save -s fakeroot.save"
+  cp debian/postinst root/DEBIAN/postinst
+  chmod +rx root/DEBIAN/postinst
+
+  echo > debian/fakeroot.save
+  FAKEROOT="fakeroot -i debian/fakeroot.save -s debian/fakeroot.save"
   $FAKEROOT -- chown -R root:root root/
   $FAKEROOT -- dpkg-deb -b root $package_filename
+  rm debian/fakeroot.save
 
   if [ "$update_repository" = 1 ]
   then
