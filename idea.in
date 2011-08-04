@@ -10,7 +10,7 @@ paths="
 
 if [ -r /etc/default/idea ]
 then
-  source /etc/default/idea
+  . /etc/default/idea
 fi
 
 if [ -z "$JDK_HOME" ]
