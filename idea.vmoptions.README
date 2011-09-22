@@ -1,0 +1,3 @@
+If you want a custom idea.vmoptions create a file called
+/etc/intellij-idea/idea.vmoptions and /usr/bin/idea will set
+$IDEA_VM_OPTIONS to /etc/intellij-idea/idea.vmoptions

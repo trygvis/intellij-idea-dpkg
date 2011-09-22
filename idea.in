@@ -39,6 +39,20 @@ fi
 echo "JDK_HOME=$JDK_HOME"
 export JDK_HOME
 
-cd /usr/share/jetbrains/intellij-idea
-exec bin/idea.sh "$@"
+if [ -z "$IDEA_VM_OPTIONS" ]
+then
+  if [ -r "$HOME/.idea.vmoptions" ]
+  then
+    IDEA_VM_OPTIONS="$HOME/.idea.vmoptions"
+    export IDEA_VM_OPTIONS
+  else
+    if [ -r "/etc/intellij-idea/idea.vmoptions" ]
+    then
+      IDEA_VM_OPTIONS="/etc/intellij-idea/idea.vmoptions"
+      export IDEA_VM_OPTIONS
+    fi
+  fi
+fi
+
+exec /usr/share/jetbrains/intellij-idea/bin/idea.sh "$@"
 

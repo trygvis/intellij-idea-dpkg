@@ -60,6 +60,9 @@ build_common() {
     cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
   fi
 
+  mkdir -p root/etc/intellij-idea
+  cp idea.vmoptions.README root/etc/intellij-idea/
+
   fn=/tmp/idea.vmoptions.$$
   cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions $fn
   cat $fn | grep -v yjpagent > root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions
