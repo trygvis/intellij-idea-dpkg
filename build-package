@@ -62,10 +62,15 @@ build_common() {
 
   mkdir -p root/etc/intellij-idea
   cp idea.vmoptions.README root/etc/intellij-idea/
+  echo "
+Original idea.vmoptions:
+" >> root/etc/intellij-idea/idea.vmoptions.README
+  cat root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions >> root/etc/intellij-idea/idea.vmoptions.README
 
   fn=/tmp/idea.vmoptions.$$
   cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions $fn
   cat $fn | grep -v yjpagent > root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions
+  rm $fn
 }
 
 calculate_package_filename() {

@@ -1,5 +1,6 @@
 *.save
 *~
+*.swp
 root
 download/*.tar.gz
 intellij-idea/Packages*
