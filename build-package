@@ -17,7 +17,7 @@ find_latest() {
   then
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+10.5+EAP"
-    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+11.1+EAP"
+    IDEA_URL="http://confluence.jetbrains.com/display/IDEADEV/IDEA+12+EAP"
   fi
 
   echo "Finding latest version from $IDEA_URL ..."
