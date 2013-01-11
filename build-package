@@ -12,7 +12,9 @@ usage() {
   exit 1
 }
 
-find_latest() {
+find_latest_release(){}
+
+find_latest_eap() {
   if [ "$IDEA_URL" = "" ]
   then
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
@@ -219,7 +221,7 @@ if [ -z "$src_dir" ]
 then
   if [ -z "$version" ]
   then
-    find_latest
+    find_latest_eap
     echo "The latest version is $version"
   else
     url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
