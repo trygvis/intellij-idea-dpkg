@@ -1,6 +1,6 @@
 SYNOPSIS
 
-  ./build-package -f <flavor> -p <platform> -v <version> -u
+  ./build-package -r <release> -f <flavor> -p <platform> -v <version> -u
 
 DESCRIPTION
 
@@ -9,12 +9,17 @@ DESCRIPTION
   specific/native tools and/or distributed from local package
   repositories.
 
-  It currently only supports building packages of the development builds
-  of IDEA, either by finding and downloading the latest version directly
-  from Jetbrain's servers or by being pointed to a build output directory
-  and use that.
+  It supports building packages of the development builds of IDEA (EAP)
+  and final release versions, either by finding and downloading the latest
+  version directly from Jetbrain's servers or by being pointed to a build
+  output directory and use that.
 
 OPTIONS
+
+  -r <release>
+
+    The release status of the version to install/download.  'release' can
+    be one of 'EAP' and 'RELEASE.'
 
   -f <flavor>
 
@@ -73,13 +78,17 @@ EXAMPLES
 
   Example 1: Creating a Solaris package of the latest Ultimate Edition.
 
-    ./build-package -f IU -p solaris
+    ./build-package -r EAP -f IU -p solaris
 
-  Example 2: Creating a Debian package of the 95.4 build of the Community Edition.
+  Example 2: Creating a Debain package of the latest released Community Edition.
+
+    ./build-package -r RELEASEqq -f IC -p debian
+
+  Example 3: Creating a Debian package of the 95.4 build of the Community Edition.
 
     ./build-package -f IC -p debian -v 95.4
 
-  Example 3: Creating a Debian from a custom build of IDEA:
+  Example 4: Creating a Debian from a custom build of IDEA:
 
     ./build-package -p debian -f IC -v 1.2.3 -s idea-IC-95.54
 
