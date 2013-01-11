@@ -221,7 +221,12 @@ if [ -z "$src_dir" ]
 then
   if [ -z "$version" ]
   then
-    find_latest_eap
+    if [ "" -eq "$release" ]
+    then
+      find_latest_eap
+    else
+      find_latest
+    fi
     echo "The latest version is $version"
   else
     url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
