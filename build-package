@@ -12,7 +12,23 @@ usage() {
   exit 1
 }
 
-find_latest_release(){}
+find_latest_release(){
+if [ "$IDEA_URL" = "" ]
+  then
+    IDEA_URL="http://www.jetbrains.com/js2/version.js"
+  fi
+
+  echo "Finding latest release version from $IDEA_URL ..."
+  #Note: wget -O redirects wget to file "o"utput, while -O - makes it standard out
+exit 1
+  read version < <(wget -O - -q $IDEA_URL | LC_ALL=C grep "versionIDEALong =.*[/.0-9]*" | grep -o "[./0-9]*" | xargs)
+
+  if [ -z "$url" -o -z "$filename" -o -z "$version" ]
+  then
+    echo "Unable to find the latest release version." >&2
+    exit 1
+  fi
+}
 
 find_latest_eap() {
   if [ "$IDEA_URL" = "" ]
@@ -23,7 +39,7 @@ find_latest_eap() {
     IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
   fi
 
-  echo "Finding latest version from $IDEA_URL ..."
+  echo "Finding latest eap version from $IDEA_URL ..."
   read url filename version skip_the_rest < <(wget -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
     s,.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
     s,.*\(ideaI.-[0-9]*.[0-9]*.tar.gz\).*,\1,p
@@ -32,7 +48,7 @@ find_latest_eap() {
 
   if [ -z "$url" -o -z "$filename" -o -z "$version" ]
   then
-    echo "Unable to find the latest version." >&2
+    echo "Unable to find the latest eap version." >&2
     exit 1
   fi
 }
@@ -163,11 +179,19 @@ then
   fi
 fi
 
-while getopts "f:Fp:s:v:u?" flag
+while getopts "r:f:Fp:s:v:u?" flag
 do
   case "$flag" in
     s)
       src_dir=$OPTARG
+      ;;
+    r)
+      release=$OPTARG
+
+      if [ "$release" != "EAP" -a "$release" != "RELEASE" ]
+      then
+        usage
+      fi
       ;;
     f) 
       flavor=$OPTARG
@@ -221,11 +245,11 @@ if [ -z "$src_dir" ]
 then
   if [ -z "$version" ]
   then
-    if [ "" -eq "$release" ]
+    if [ "$release" = "RELEASE" ]
     then
-      find_latest_eap
+      find_latest_release
     else
-      find_latest
+      find_latest_eap
     fi
     echo "The latest version is $version"
   else
