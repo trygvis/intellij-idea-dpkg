@@ -20,9 +20,10 @@ if [ "$IDEA_URL" = "" ]
 
   echo "Finding latest release version from $IDEA_URL ..."
   #Note: wget -O redirects wget to file "o"utput, while -O - makes it standard out
-exit 1
-  read version < <(wget -O - -q $IDEA_URL | LC_ALL=C grep "versionIDEALong =.*[/.0-9]*" | grep -o "[./0-9]*" | xargs)
 
+  read version < <(wget -O - -q $IDEA_URL | LC_ALL=C grep "versionIDEALong =.*[/.0-9]*" | grep -o "[./0-9]*" | xargs)
+  url="http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz"
+  filename="idea$flavor-$version.tar.gz"
   if [ -z "$url" -o -z "$filename" -o -z "$version" ]
   then
     echo "Unable to find the latest release version." >&2
