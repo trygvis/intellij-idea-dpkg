@@ -13,22 +13,22 @@ usage() {
 }
 
 find_latest_release(){
-if [ "$IDEA_URL" = "" ]
-  then
-    IDEA_URL="http://www.jetbrains.com/js2/version.js"
-  fi
+    if [ "$IDEA_URL" = "" ]
+      then
+        IDEA_URL="http://www.jetbrains.com/js2/version.js"
+      fi
 
-  echo "Finding latest release version from $IDEA_URL ..."
-  #Note: wget -O redirects wget to file "o"utput, while -O - makes it standard out
+      echo "Finding latest release version from $IDEA_URL ..."
+      #Note: wget -O redirects wget to file "o"utput, while -O - makes it standard out
 
-  read version < <(wget -O - -q $IDEA_URL | LC_ALL=C grep "versionIDEALong =.*[/.0-9]*" | grep -o "[./0-9]*" | xargs)
-  url="http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz"
-  filename="idea$flavor-$version.tar.gz"
-  if [ -z "$url" -o -z "$filename" -o -z "$version" ]
-  then
-    echo "Unable to find the latest release version." >&2
-    exit 1
-  fi
+      read version < <(wget -O - -q $IDEA_URL | LC_ALL=C grep "versionIDEALong =.*[/.0-9]*" | grep -o "[./0-9]*" | xargs)
+      url="http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz"
+      filename="idea$flavor-$version.tar.gz"
+      if [ -z "$url" -o -z "$filename" -o -z "$version" ]
+      then
+        echo "Unable to find the latest release version." >&2
+        exit 1
+      fi
 }
 
 find_latest_eap() {
@@ -37,7 +37,8 @@ find_latest_eap() {
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+10.5+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+11.1+EAP"
-    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
+#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
+    IDEA_URL="http://confluence.jetbrains.com/display/IDEADEV/IDEA+12.1+EAP"
   fi
 
   echo "Finding latest eap version from $IDEA_URL ..."
