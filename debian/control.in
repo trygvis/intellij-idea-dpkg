@@ -1,10 +1,17 @@
-Package: intellij-idea-FLAVOR_LOWER
-Section: devel
+Source:  intellij-idea
+Maintainer: Jetbrains
+Priority: optional
+Homepage: http://www.jetbrains.com/idea/
 Version: VERSION
-Maintainer: Trygve Laugstøl <trygvis@inamo.no>
+
+Package: intellij-idea-FLAVOR_LOWER
 Architecture: all
+Section: devel
+Priority: optional
+Maintainer: Trygve Laugstøl <trygvis@inamo.no>, Jamie Jones <jbjonesjr@gmail.com>
 Depends: sun-java6-jdk | openjdk-6-jdk
 Suggests: openjdk-6-source
 Conflicts: intellij-idea-OTHER_FLAVOR_LOWER, intellij-idea-OTHER_FLAVOR, intellij-idea-FLAVOR
+Homepage: https://github.com/jbjonesjr/intellij-idea-dpkg
 Description: The Most Intelligent Java IDE
 
