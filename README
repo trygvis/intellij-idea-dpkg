@@ -19,7 +19,9 @@ OPTIONS
   -r <release>
 
     The release status of the version to install/download.  'release' can
-    be one of 'EAP' and 'RELEASE.'
+    be one of 'EAP' and 'RELEASE.'  Defaults to EAP, and fetchs the latest
+    discovered from http://confluence.jetbrains.com/display/IDEADEV/IDEA+12.1+EAP
+    RELEASE fetchs the latest stable release.
 
   -f <flavor>
 
@@ -63,8 +65,8 @@ OPTIONS
   -v <version>
 
     The version of the build to use. If not specified the script will
-    automatically find and download the latest build discovered from
-    http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP
+    automatically find and download the latest build described by the release
+    option
 
 SOLARIS
 
@@ -82,7 +84,7 @@ EXAMPLES
 
   Example 2: Creating a Debain package of the latest released Community Edition.
 
-    ./build-package -r RELEASEqq -f IC -p debian
+    ./build-package -r RELEASE -f IC -p debian
 
   Example 3: Creating a Debian package of the 95.4 build of the Community Edition.
 
