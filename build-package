@@ -39,6 +39,7 @@ find_latest_eap() {
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+11.1+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
     IDEA_URL="http://confluence.jetbrains.com/display/IDEADEV/IDEA+12.1+EAP"
+
   fi
 
   echo "Finding latest eap version from $IDEA_URL ..."

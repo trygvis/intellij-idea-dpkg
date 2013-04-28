@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "Reloading sysctl settings for inotify settings."
-invoke-rc.d procps start
+invoke-rc.d procps start || true
