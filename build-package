@@ -12,16 +12,37 @@ usage() {
   exit 1
 }
 
-find_latest() {
+find_latest_release(){
+    if [ "$IDEA_URL" = "" ]
+      then
+        IDEA_URL="http://www.jetbrains.com/js2/version.js"
+      fi
+
+      echo "Finding latest release version from $IDEA_URL ..."
+      #Note: wget -O redirects wget to file "o"utput, while -O - makes it standard out
+
+      read version < <(wget -O - -q $IDEA_URL | LC_ALL=C grep "versionIDEALong =.*[/.0-9]*" | grep -o "[./0-9]*" | xargs)
+      url="http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz"
+      filename="idea$flavor-$version.tar.gz"
+      if [ -z "$url" -o -z "$filename" -o -z "$version" ]
+      then
+        echo "Unable to find the latest release version." >&2
+        exit 1
+      fi
+}
+
+find_latest_eap() {
   if [ "$IDEA_URL" = "" ]
   then
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+10.5+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+11.1+EAP"
-    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
+#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
+    IDEA_URL="http://confluence.jetbrains.com/display/IDEADEV/IDEA+12.1+EAP"
+
   fi
 
-  echo "Finding latest version from $IDEA_URL ..."
+  echo "Finding latest eap version from $IDEA_URL ..."
   read url filename version skip_the_rest < <(wget -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
     s,.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
     s,.*\(ideaI.-[0-9]*.[0-9]*.tar.gz\).*,\1,p
@@ -30,7 +51,7 @@ find_latest() {
 
   if [ -z "$url" -o -z "$filename" -o -z "$version" ]
   then
-    echo "Unable to find the latest version." >&2
+    echo "Unable to find the latest eap version." >&2
     exit 1
   fi
 }
@@ -53,13 +74,7 @@ build_common() {
   chmod +rx root/usr/bin/idea
 
   mkdir -p root/usr/share/applications
-  if [ "$FLAVOR_LOWER" == "ic" ]
-  then
-    # IC version has different icon name
-    sed 's|/idea128\.png$|/idea_CE128.png|' intellij-idea.desktop > root/usr/share/applications/intellij-idea.desktop
-  else
-    cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
-  fi
+  cp intellij-idea.desktop root/usr/share/applications/intellij-idea.desktop
 
   mkdir -p root/etc/intellij-idea
   cp idea.vmoptions.README root/etc/intellij-idea/
@@ -82,7 +97,8 @@ calculate_package_filename() {
       package_filename=$repo/intellij-idea-$version-`uname -s``uname -r`-`uname -p`.pkg
       ;;
     debian)
-      # TODO: Add arch to the filename (i386, amd64)
+      # Note: No need to add arch to the filename (i386, amd64) since the control specifies it as valid for "all" architectures
+      buildsystem_arch=`dpkg --print-architecture`
       repo=repository/debian
       mkdir -p $repo
       package_filename=$repo/intellij-idea-$FLAVOR_LOWER-$version.deb
@@ -161,11 +177,19 @@ then
   fi
 fi
 
-while getopts "f:Fp:s:v:u?" flag
+while getopts "r:f:Fp:s:v:u?" flag
 do
   case "$flag" in
     s)
       src_dir=$OPTARG
+      ;;
+    r)
+      release=$OPTARG
+
+      if [ "$release" != "EAP" -a "$release" != "RELEASE" ]
+      then
+        usage
+      fi
       ;;
     f) 
       flavor=$OPTARG
@@ -204,6 +228,13 @@ then
   usage
 fi
 
+if [ "$release" = "EAP" ]
+ then
+ RELEASE_LOWER=eap
+else
+ RELEASE_LOWER=release
+fi
+
 if [ $flavor = "IC" ]
 then
   OTHER_FLAVOR_LOWER=iu
@@ -219,8 +250,13 @@ if [ -z "$src_dir" ]
 then
   if [ -z "$version" ]
   then
-    find_latest
-    echo "The latest version is $version"
+    if [ "$release" = "RELEASE" ]
+    then
+      find_latest_release
+    else
+      find_latest_eap
+    fi
+    echo "The latest $RELEASE_LOWER version is $version"
   else
     url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
     filename=idea$flavor-$version.tar.gz
@@ -240,7 +276,7 @@ else
 fi
 
 calculate_package_filename
-
+#echo "Going to create the package at $package_filename"
 if [ -r "$package_filename" ]
 then
   if [ $force = "false" ]
@@ -266,7 +302,7 @@ then
   #fi
 
   echo "Downloading version $version..."
-  if [ `wget -q -P download -N $url; echo $?` != "0" ]
+  if [ `wget -P download -N $url; echo $?` != "0" ]
   then
     echo "Could not download $url" >&2
     exit 1
