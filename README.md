@@ -96,3 +96,7 @@ package and distribute the tar files.
 
 If you find a bug, please file a bug on GitHub:
 http://github.com/trygvis/intellij-idea-dpkg/issues
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/trygvis/intellij-idea-dpkg/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
