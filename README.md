@@ -60,7 +60,8 @@ OPTIONS
 * `-v <version>`
 
     The version of the build to use. If not specified the script will
-    automatically find and download the latest build discovered from
+    automatically find and download the latest EAP build of 13.1, 
+    discovered from:
     http://confluence.jetbrains.net/display/IDEADEV/IDEA+13.1+EAP
 
 SOLARIS
