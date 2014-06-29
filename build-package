@@ -196,7 +196,7 @@ do
       force="true"
       ;;
     ?)
-      less README
+      less README.md
       exit 0
       ;;
   esac
