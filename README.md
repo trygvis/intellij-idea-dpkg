@@ -1,7 +1,7 @@
 SYNOPSIS
 --------
 
-    ./build-package -f <flavor> -p <platform> -v <version> -u
+    ./build-package [-f <flavor>] [-p <platform>] [-v <version>] -u
 
 DESCRIPTION
 --------
@@ -23,6 +23,9 @@ OPTIONS
     The IDEA flavor to package. 'flavor' can be one of 'IU' and 'IC'
     for IDEA Ultimate or IDEA Community Edition respectively.
 
+    This option will be stored in `$HOME/.intellij-idea-dpkg` so you
+    don't have to specifiy it in the next run.
+
 * `-F`
 
     Force a build of a package, even if there is a package with the same
@@ -31,7 +34,8 @@ OPTIONS
 * `-p <platform>`
 
     The operating system platform to build the package for. Can be one
-    of 'debian' and 'solaris'.
+    of 'debian' and 'solaris'. The platform-specific tools has to be
+    available to do cross-build.
     
     'debian' will build a package for any of the Debian based Linux
     distributions, including Debian and Ubuntu.
@@ -39,9 +43,6 @@ OPTIONS
     'solaris' will build a package for Solaris 8 to 10. The package itself
     will work on later versions of Solaris and OpenSolaris but uses the
     'old style' packaging tools (pkgadd, pkgmk, etc)
-
-    Platform autodetection will be implemented once someone has been
-    annoyed enough by the manual procedure.
 
 * `-s <directory>`
 
@@ -75,15 +76,22 @@ make sure you have the `pkgutilplus` package installed
 EXAMPLES
 -------
 
-Example 1: Creating a Solaris package of the latest Ultimate Edition.
+Example 1: Creating a package of the latest Ultimate Edition.
+
+    ./build-package
+
+The flavor can be overridden with `-f`. This option will also be
+remembered for the next run.
+
+Example 2: Creating a Solaris package of the latest Ultimate Edition.
 
     ./build-package -f IU -p solaris
 
-Example 2: Creating a Debian package of the 95.4 build of the Community Edition.
+Example 3: Creating a Debian package of the 95.4 build of the Community Edition.
 
     ./build-package -f IC -p debian -v 95.4
 
-Example 3: Creating a Debian from a custom build of IDEA:
+Example 4: Creating a Debian from a custom build of IDEA:
 
     ./build-package -p debian -f IC -v 1.2.3 -s idea-IC-95.54
 

@@ -6,10 +6,28 @@ set -e
 force=false
 umask=022
 
+uname_s=$(uname -s)
+
 usage() {
   echo "usage: $0 OPTIONS" >&2
   echo "Use $0 -? for usage help" >&2
   exit 1
+}
+
+detect_platform() {
+  if [[ -r /etc/debian_version ]]
+  then
+    echo "debian"
+    return
+  fi
+
+  if [[ $uname_s == "SunOS" ]]
+  then
+    echo "solaris"
+    return
+  fi
+
+  echo "Could not detect platform, use -p to specify." >&2
 }
 
 find_latest() {
@@ -203,9 +221,28 @@ do
   esac
 done
 
-if [ -z "$flavor" -o -z "$platform" ]
+if [ -z "$platform" ]
 then
-  usage
+  platform=$(detect_platform)
+fi
+
+if [ -z "$flavor" ]
+then
+  if [[ -r $HOME/.intellij-idea-dpkg ]]
+  then
+    flavor=$(sed -n "s,^flavor=\(.*\),\1,p" "$HOME/.intellij-idea-dpkg")
+  else
+    echo "Defaulting to the 'IU' flavor, use -f to override."
+    flavor=IU
+  fi
+
+  if [ -z "$flavor" ]
+  then
+    usage
+  fi
+else
+  echo "Saving the flavor so you don't have to specify it again."
+  echo flavor=$flavor > "$HOME/.intellij-idea-dpkg"
 fi
 
 if [ $flavor = "IC" ]
