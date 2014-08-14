@@ -46,8 +46,8 @@ find_latest() {
   echo "Finding latest version from $IDEA_URL ..."
   read url filename version skip_the_rest < <(wget --max-redirect 5 -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
     s,.*\"\(http:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
-    s,.*\(ideaI.-[0-9]*.[0-9]*.tar.gz\).*,\1,p
-    s,.*-\([0-9]*.[0-9]*\).tar.gz,\1,p
+    s,.*\(ideaI.-[.0-9]*.tar.gz\).*,\1,p
+    s,.*-\([.0-9]*\).tar.gz,\1,p
   }" | xargs)
 
   if [ -z "$url" -o -z "$filename" -o -z "$version" ]
