@@ -12,7 +12,7 @@ specific/native tools and/or distributed from local package repositories.
 
 It currently only supports building packages of the development builds
 of IDEA, either by finding and downloading the latest version directly
-from Jetbrain's servers or by being pointed to a build output directory
+from Jetbrain's servers or by being pointed to a build intput directory
 and use that.
 
 OPTIONS
