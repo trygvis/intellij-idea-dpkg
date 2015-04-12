@@ -95,6 +95,16 @@ Original idea.vmoptions:
   cp root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions $fn
   cat $fn | grep -v yjpagent > root/usr/share/jetbrains/intellij-idea/bin/idea.vmoptions
   rm $fn
+
+  # If idea.license is provided in the bin directory of intellij-idea, this
+  # license is applied to the genereated package. This allows to generate a
+  # certified package for the Ultimate edition of the IDE.
+  if [ -f "idea.license" ]
+  then
+    bin_dir="root/usr/share/jetbrains/intellij-idea/bin"
+    echo "Copy licence file to $bin_dir"
+    cp idea.license bin_dir
+  fi
 }
 
 calculate_package_filename() {
