@@ -103,7 +103,7 @@ Original idea.vmoptions:
   then
     bin_dir="root/usr/share/jetbrains/intellij-idea/bin"
     echo "Copy licence file to $bin_dir"
-    cp idea.license bin_dir
+    cp idea.license $bin_dir
   fi
 }
 
