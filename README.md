@@ -51,6 +51,10 @@ OPTIONS
 
     Note that you have to specify the version explicitly.
 
+* `-t`
+
+    Use newest stable version instead of the newest EAP version
+
 * `-u`
 
     Updates the package repository with the appropriate command for

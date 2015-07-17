@@ -33,6 +33,12 @@ detect_platform() {
 find_latest() {
   if [ "$IDEA_URL" = "" ]
   then
+  if [ $1 -eq 1 ]; then
+    IDEA_URL="http://confluence.jetbrains.com/display/IntelliJIDEA/Previous+IntelliJ+IDEA+Releases"
+    url=$(wget --max-redirect 5 -O - -q $IDEA_URL | grep -o -m1 -E "(http|https)://download\.jetbrains\.com/idea/ideaIC-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
+    filename=$(echo $url | grep -o -E "ideaIC-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
+    version=$(echo $filename | grep -o -E "[0-9]+\.[0-9]+\.[0-9]")
+  else
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+10.5+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+11.1+EAP"
@@ -42,7 +48,8 @@ find_latest() {
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+13.1+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14.1+EAP"
-    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+15+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+15+EAP"
+    fi
   fi
 
   echo "Finding latest version from $IDEA_URL ..."
@@ -185,11 +192,14 @@ then
   fi
 fi
 
-while getopts "f:Fp:s:v:u?" flag
+while getopts "f:Fp:s:t?:v:u?" flag
 do
   case "$flag" in
     s)
       src_dir=$OPTARG
+      ;;
+    t)
+      stable=1
       ;;
     f) 
       flavor=$OPTARG
@@ -262,7 +272,7 @@ if [ -z "$src_dir" ]
 then
   if [ -z "$version" ]
   then
-    find_latest
+    find_latest $stable
     echo "The latest version is $version"
   else
     url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
