@@ -254,11 +254,13 @@ then
       echo "Defaulting to the 'IU' flavor, use -f to override."
       flavor=IU
       echo "Saving the flavor so you don't have to specify it again."
-      echo flavor=$flavor > "$HOME/.intellij-idea-dpkg"
+      echo flavor=$flavor >> "$HOME/.intellij-idea-dpkg"
     fi
   else
     echo "Defaulting to the 'IU' flavor, use -f to override."
     flavor=IU
+    echo "Saving the flavor so you don't have to specify it again."
+    echo flavor=$flavor >> "$HOME/.intellij-idea-dpkg"
   fi
 
   if [ -z "$flavor" ]
@@ -267,7 +269,12 @@ then
   fi
 else
   echo "Saving the flavor so you don't have to specify it again."
-  echo flavor=$flavor > "$HOME/.intellij-idea-dpkg"
+  if [[ -r $HOME/.intellij-idea-dpkg ]]
+  then
+    sed -i "s/flavor=.*/flavor=$flavor/g" "$HOME/.intellij-idea-dpkg"
+  else
+    echo flavor=$flavor > "$HOME/.intellij-idea-dpkg"
+  fi
 fi
 
 if [ $flavor = "IC" ]
@@ -296,6 +303,8 @@ then
   else
     echo "Defaulting to the 'eap' channel, use -c to override."
     channel=eap
+    echo "Saving the channel so you don't have to specify it again."
+    echo channel=$channel >> "$HOME/.intellij-idea-dpkg"
   fi
 
   if [ -z "$channel" ]
@@ -303,8 +312,13 @@ then
     usage
   fi
 else
+  if [[ -r $HOME/.intellij-idea-dpkg ]]
   echo "Saving the channel so you don't have to specify it again."
-  echo channel=$channel > "$HOME/.intellij-idea-dpkg"
+  then
+    sed -i "s/channel=.*/channel=$channel/g" "$HOME/.intellij-idea-dpkg"
+  else
+    echo channel=$channel > "$HOME/.intellij-idea-dpkg"
+  fi
 fi
 
 if [ -z "$src_dir" ]
