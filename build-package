@@ -32,14 +32,15 @@ detect_platform() {
 
 find_latest() {
   local channel=$1; shift;
+  local flavor=$1; shift;
   echo "Finding latest version from $IDEA_URL ..."
   if [ "$IDEA_URL" = "" ]
   then
     if [ "$channel" ==  "stable" ]
     then
         IDEA_URL="http://confluence.jetbrains.com/display/IntelliJIDEA/Previous+IntelliJ+IDEA+Releases"
-        url=$(wget --max-redirect 5 -O - -q $IDEA_URL | grep -o -m1 -E "(http|https)://download\.jetbrains\.com/idea/ideaIC-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
-        filename=$(echo $url | grep -o -E "ideaIC-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
+        url=$(wget --max-redirect 5 -O - -q $IDEA_URL | grep -o -m1 -E "(http|https)://download\.jetbrains\.com/idea/idea${flavor}-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
+        filename=$(echo $url | grep -o -E "idea${flavor}-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
         version=$(echo $filename | grep -o -E "[0-9]+\.[0-9]+\.[0-9]")
     else
         IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
@@ -310,7 +311,7 @@ if [ -z "$src_dir" ]
 then
   if [ -z "$version" ]
   then
-    find_latest $channel
+    find_latest $channel $flavor
     echo "The latest version is $version"
   else
     url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
