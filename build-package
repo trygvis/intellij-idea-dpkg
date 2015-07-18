@@ -67,6 +67,21 @@ find_latest() {
   fi
 }
 
+check_update() {
+    local version=$1; shift;
+    local platform=$1; shift;
+    if [ "$platform" == "debian" ]
+    then
+      installed_version=$(dpkg -l | grep -E "intellij-idea-i." | grep -o -E "[0-9]+\.[0-9]+\.[0-9]")
+    fi
+    if [ ! -z "$installed_version" -a \( "$installed_version" != "$version" \) ]
+    then
+      echo "Update availabe to Version $version."
+      exit -1
+    fi
+    exit 0
+}
+
 build_common() {
   rm -rf root
   if [ ! -z "$src_dir" ]
@@ -193,9 +208,12 @@ then
   fi
 fi
 
-while getopts "c:f:Fp:s:v:u?" flag
+while getopts "c:f:Fp:r?:s:v:u?" flag
 do
   case "$flag" in
+    r)
+      update=1
+      ;;
     s)
       src_dir=$OPTARG
       ;;
@@ -319,6 +337,11 @@ else
   else
     echo channel=$channel > "$HOME/.intellij-idea-dpkg"
   fi
+fi
+
+if [ $update -eq 1 ]; then
+    find_latest $channel $flavor $update
+    check_update $version $platform
 fi
 
 if [ -z "$src_dir" ]
