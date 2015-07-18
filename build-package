@@ -31,34 +31,34 @@ detect_platform() {
 }
 
 find_latest() {
+  local channel=$1; shift;
+  echo "Finding latest version from $IDEA_URL ..."
   if [ "$IDEA_URL" = "" ]
   then
-  if [ $1 -eq 1 ]; then
-    IDEA_URL="http://confluence.jetbrains.com/display/IntelliJIDEA/Previous+IntelliJ+IDEA+Releases"
-    url=$(wget --max-redirect 5 -O - -q $IDEA_URL | grep -o -m1 -E "(http|https)://download\.jetbrains\.com/idea/ideaIC-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
-    filename=$(echo $url | grep -o -E "ideaIC-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
-    version=$(echo $filename | grep -o -E "[0-9]+\.[0-9]+\.[0-9]")
-  else
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+10.5+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+11.1+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12.1+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+13+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+13.1+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14.1+EAP"
+    if [ "$channel" ==  "stable" ]
+    then
+        IDEA_URL="http://confluence.jetbrains.com/display/IntelliJIDEA/Previous+IntelliJ+IDEA+Releases"
+        url=$(wget --max-redirect 5 -O - -q $IDEA_URL | grep -o -m1 -E "(http|https)://download\.jetbrains\.com/idea/ideaIC-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
+        filename=$(echo $url | grep -o -E "ideaIC-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz")
+        version=$(echo $filename | grep -o -E "[0-9]+\.[0-9]+\.[0-9]")
+    else
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+10.5+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+11.1+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12.1+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+13+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+13.1+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14+EAP"
+        IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14.1+EAP"
         IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+15+EAP"
+        read url filename version skip_the_rest < <(wget --max-redirect 5 -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http.*:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
+           s,.*\"\(http.*:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
+           s,.*\(ideaI.-[.0-9]*.tar.gz\).*,\1,p
+           s,.*-\([.0-9]*\).tar.gz,\1,p
+         }" | xargs)
     fi
   fi
-
-  echo "Finding latest version from $IDEA_URL ..."
-  read url filename version skip_the_rest < <(wget --max-redirect 5 -O - -q $IDEA_URL | LC_ALL=C sed -n -e "/.*\"\(http.*:\/\/.*\/idea$flavor-.*tar.gz\)\".*/ {
-    s,.*\"\(http.*:\/\/.*\/idea$flavor-.*tar.gz\)\".*,\1,p
-    s,.*\(ideaI.-[.0-9]*.tar.gz\).*,\1,p
-    s,.*-\([.0-9]*\).tar.gz,\1,p
-  }" | xargs)
-
   if [ -z "$url" -o -z "$filename" -o -z "$version" ]
   then
     echo "Unable to find the latest version." >&2
@@ -192,14 +192,19 @@ then
   fi
 fi
 
-while getopts "f:Fp:s:t?:v:u?" flag
+while getopts "c:f:Fp:s:v:u?" flag
 do
   case "$flag" in
     s)
       src_dir=$OPTARG
       ;;
-    t)
-      stable=1
+    c) 
+      channel=$OPTARG
+
+      if [ "$channel" != "eap" -a "$channel" != "stable" ]
+      then
+        usage
+      fi
       ;;
     f) 
       flavor=$OPTARG
@@ -243,6 +248,13 @@ then
   if [[ -r $HOME/.intellij-idea-dpkg ]]
   then
     flavor=$(sed -n "s,^flavor=\(.*\),\1,p" "$HOME/.intellij-idea-dpkg")
+    if [ -z "$flavor" ]
+    then
+      echo "Defaulting to the 'IU' flavor, use -f to override."
+      flavor=IU
+      echo "Saving the flavor so you don't have to specify it again."
+      echo flavor=$flavor > "$HOME/.intellij-idea-dpkg"
+    fi
   else
     echo "Defaulting to the 'IU' flavor, use -f to override."
     flavor=IU
@@ -268,11 +280,37 @@ else
   FLAVOR_LOWER=iu
 fi
 
+if [ -z "$channel" ]
+then
+  if [[ -r $HOME/.intellij-idea-dpkg ]]
+  then
+    channel=$(sed -n "s,^channel=\(.*\),\1,p" "$HOME/.intellij-idea-dpkg")
+    if [ -z "$channel" ]
+    then
+      echo "Defaulting to the 'eap' channel, use -c to override."
+      channel=eap
+      echo "Saving the channel so you don't have to specify it again."
+      echo channel=$channel >> "$HOME/.intellij-idea-dpkg"
+    fi
+  else
+    echo "Defaulting to the 'eap' channel, use -c to override."
+    channel=eap
+  fi
+
+  if [ -z "$channel" ]
+  then
+    usage
+  fi
+else
+  echo "Saving the channel so you don't have to specify it again."
+  echo channel=$channel > "$HOME/.intellij-idea-dpkg"
+fi
+
 if [ -z "$src_dir" ]
 then
   if [ -z "$version" ]
   then
-    find_latest $stable
+    find_latest $channel
     echo "The latest version is $version"
   else
     url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
