@@ -3,8 +3,8 @@ Section: devel
 Version: VERSION
 Maintainer: Trygve Laugstøl <trygvis@inamo.no>
 Architecture: all
-Depends: openjdk-7-jdk | sun-java6-jdk | openjdk-6-jdk | ibm-j2sdk1.7
-Suggests: openjdk-6-source, openjdk-7-source
+Depends: openjdk-8-jdk |openjdk-7-jdk | sun-java6-jdk | openjdk-6-jdk | ibm-j2sdk1.7
+Suggests: openjdk-6-source, openjdk-7-source, openjdk-8-source
 Conflicts: intellij-idea-OTHER_FLAVOR_LOWER, intellij-idea-OTHER_FLAVOR, intellij-idea-FLAVOR
 Description: The Most Intelligent Java IDE
 
