@@ -3,6 +3,8 @@
 paths="
 /usr/lib/jvm/java-8-oracle
 
+/usr/lib/jvm/java-8-openjdk
+/usr/lib/jvm/java-8-openjdk-amd64
 /usr/lib/jvm/java-7-openjdk
 /usr/lib/jvm/java-7-openjdk-amd64
 /usr/jdk/instances/jdk1.7.0
