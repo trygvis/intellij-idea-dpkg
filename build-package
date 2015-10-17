@@ -6,6 +6,11 @@ set -e
 force=false
 umask=022
 
+JETBRAINS_UPDATE_URL=https://www.jetbrains.com/updates/updates.xml
+INTELLIJ_EAP_XPATH='string((//product[@name="IntelliJ IDEA"]/channel[@status="eap"]/build/button[@download="true"]/@url)[last()])'
+INTELLIJ_RELEASE_XPATH='string((//product[@name="IntelliJ IDEA"]/channel[@status="release"]/build/button[@download="true"]/@url)[last()])'
+
+
 uname_s=$(uname -s)
 
 usage() {
@@ -33,16 +38,13 @@ detect_platform() {
 find_latest() {
   if [ "$IDEA_URL" = "" ]
   then
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+X+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+10.5+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+11.1+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+12.1+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+13+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+13.1+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14+EAP"
-#    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14.1+EAP"
-    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+15+EAP"
+    IDEA_URL=$(wget -O - -q $JETBRAINS_UPDATE_URL | xmllint --xpath "$INTELLIJ_EAP_XPATH" -)
+  fi
+
+  if [ "$IDEA_URL" = "" ]
+  then
+    echo "Unable to find the latest version." >&2
+    exit 1
   fi
 
   export LC_ALL=C
