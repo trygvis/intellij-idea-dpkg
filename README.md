@@ -15,6 +15,10 @@ of IDEA, either by finding and downloading the latest version directly
 from Jetbrain's servers or by being pointed to a build output directory
 and use that.
 
+If you provide an *idea.license* file, this license is applied to the
+genereated package. This allows to generate a certified package for
+the Ultimate edition of the IDE.
+
 OPTIONS
 --------
 
