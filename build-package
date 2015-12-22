@@ -269,8 +269,8 @@ then
     find_latest
     echo "The latest version is $version"
   else
-    url=http://download.jetbrains.com/idea/idea$flavor-$version.tar.gz
-    filename=idea$flavor-$version.tar.gz
+    url=http://download.jetbrains.com/idea/idea$flavor-$version-custom-jdk-linux.tar.gz
+    filename=idea$flavor-$version-custom-jdk-linux.tar.gz
   fi
 else
   if [ -z "$version" ]
