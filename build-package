@@ -53,7 +53,7 @@ find_latest() {
       sed -n -e 's,\(href=.[^ "]\),\n\1,gp' | \
       sed -n -e 's,^href.*\(http[^ "]*\).*,\1,p' | sed -n "/tar.gz$/ {
     s,\(http.*:\/\/.*\/idea$flavor-.*tar.gz\),\1,p
-    s,.*\(ideaI.-[.0-9].*.tar.gz\).*,\1,p
+    s,.*\(idea$flavor-[.0-9].*.tar.gz\).*,\1,p
     s,.*-\([.0-9].*\).tar.gz,\1,p
   }" | xargs)
 
