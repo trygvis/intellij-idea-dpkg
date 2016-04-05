@@ -112,6 +112,22 @@ Original idea.vmoptions:
     echo "Copy licence file to $bin_dir"
     cp idea.license $bin_dir
   fi
+
+  # remove unnecessary binaries
+  echo "Remove unneccesary binaries (for other OSes and architectures)"
+  plugin_path="root/usr/share/intellij-idea/plugins"
+  rm -r $plugin_path/tfsIntegration/lib/native/{aix,freebsd,hpux,macosx,win32}
+  rm -r $plugin_path/gradle/lib/native-platform-{freebsd,osx,windows}*
+  case "$platform" in
+   solaris)
+    rm -r $plugin_path/tfsIntegration/lib/native/linux
+    rm -r $plugin_path/gradle/lib/native-platform-linux*
+     ;;
+   debian)
+    rm -r $plugin_path/tfsIntegration/lib/native/solaris
+    rm -r $plugin_path/tfsIntegration/lib/native/linux/{arm,ppc}
+    ;;
+  esac
 }
 
 calculate_package_filename() {
