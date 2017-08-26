@@ -44,7 +44,11 @@ find_latest() {
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+14.1+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+15+EAP"
 #    IDEA_URL="http://confluence.jetbrains.net/display/IDEADEV/IDEA+16+EAP"
-    IDEA_URL="https://confluence.jetbrains.com/display/IDEADEV/IDEA+2016.1+EAP"
+#    IDEA_URL="https://confluence.jetbrains.com/display/IDEADEV/IDEA+2016.1+EAP"
+#    IDEA_URL="https://confluence.jetbrains.com/display/IDEADEV/IDEA+2016.2+EAP"
+#    IDEA_URL="https://confluence.jetbrains.com/display/IDEADEV/IDEA+2016.3+EAP"
+#    IDEA_URL="https://confluence.jetbrains.com/display/IDEADEV/IDEA+2017.1+EAP"
+    IDEA_URL="https://confluence.jetbrains.com/display/IDEADEV/IDEA+2017.2+EAP"
   fi
 
   export LC_ALL=C
