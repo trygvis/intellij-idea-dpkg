@@ -329,7 +329,7 @@ then
   #fi
 
   echo "Downloading version $version..."
-  if [ `wget -q -P download -N $url; echo $?` != "0" ]
+  if [ `wget -c -q -P download -N $url; echo $?` != "0" ]
   then
     echo "Could not download $url" >&2
     exit 1
